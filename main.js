@@ -31,7 +31,7 @@ function renderTable(students) {
           <td>${student.studentAge}</td>
           <td>${student.studentSex ? "Nam" : "Nữ"}</td>
           <td>
-            <button type="button" onclick=" updateStudent(${
+            <button type="button" onclick="showModalUpdate(), renderModalUpdate(${
               student.id
             })" class="btn btn-success">Update</button>
             <button type="button" onclick="showModal(), renderDelete(${
@@ -90,16 +90,27 @@ function deleteStudent(studentID) {
   renderTable(students);
 }
 
-function updateStudent(studentID) {
+function updateStudent(event, studentID) {
+  event.preventDefault();
+
   for (let i in students) {
     if (students[i].id == studentID) {
       students[i] = {
         ...students[i],
-        studentName: prompt("Nhập vào tên"),
-        studentPhone: prompt("Nhập vào số điện thoại"),
-        studentAge: prompt("Nhập vào tuổi"),
+        studentName:
+          event.target.studentName.value == ""
+            ? students[i].studentName
+            : event.target.studentName.value,
+        studentPhone:
+          event.target.studentPhone.value == ""
+            ? students[i].studentPhone
+            : event.target.studentPhone.value,
+        studentAge:
+          event.target.studentAge.value == ""
+            ? students[i].studentAge
+            : event.target.studentAge.value,
+        studentSex: event.target.sex.value == "Nam" ? true : false,
       };
-      console.log(students[i]);
       break;
     }
   }
@@ -203,7 +214,7 @@ function renderDeleteList() {
   >
   Delete
   </button>
-  <button type="button" class="btn btn-primary" onclick="closeModal()">
+  <button type="button" class="btn btn-secondary" onclick="closeModal()">
     Cancel
   </button>`;
 }
@@ -229,7 +240,113 @@ function renderDelete(studentID) {
   >
   Delete
   </button>
-  <button type="button" class="btn btn-primary" onclick="closeModal()">
+  <button type="button" class="btn btn-secondary" onclick="closeModal()">
     Cancel
   </button>`;
+}
+
+// Modal Update
+
+function showModalUpdate() {
+  let modalUpdateEl = document.getElementById("modalUpdate");
+  modalUpdateEl.style.display = "block";
+
+  window.onclick = function (event) {
+    if (event.target == modalUpdateEl) {
+      modalUpdateEl.style.display = "none";
+    }
+  };
+}
+
+function closeModalUpdate() {
+  let modalDeleteEl = document.getElementById("modalUpdate");
+  modalDeleteEl.style.display = "none";
+}
+
+function renderModalUpdate(studentID) {
+  let studentUpdate = {};
+  for (let student of students) {
+    if (student.id == studentID) {
+      studentUpdate = student;
+    }
+  }
+
+  document.getElementById("bodyModalUpdate").innerHTML = `
+  <form id="updateStudent" onsubmit="closeModalUpdate(), updateStudent(event,${studentID})">
+  Name:
+  <div class="form-floating mb-3">
+    <input
+      type="text"
+      class="form-control"
+      id="inputName"
+      placeholder="Name"
+      name="studentName"
+    />
+    <label for="inputName">${studentUpdate.studentName}</label>
+  </div>
+  Phone:
+  <div class="form-floating mb-3">
+    <input
+      type="text"
+      class="form-control"
+      id="inputPhone"
+      placeholder="Phone"
+      name="studentPhone"
+    />
+    <label for="inputPhone">${studentUpdate.studentPhone}</label>
+  </div>
+  Age:
+  <div class="form-floating mb-3">
+    <input
+      type="number"
+      class="form-control"
+      id="inputAge"
+      placeholder="Age"
+      name="studentAge"
+    />
+    <label for="inputAge">${studentUpdate.studentAge}</label>
+  </div>
+  <div id="radioSex">
+    <div class="form-check mb-3">
+      <input
+        class="form-check-input"
+        type="radio"
+        name="sex"
+        value="Nam"
+        id="radioNam"
+      />
+      <label class="form-check-label" for="flexRadioDefault1">
+        Nam
+      </label>
+    </div>
+    <div class="form-check mb-3">
+      <input
+        class="form-check-input"
+        type="radio"
+        name="sex"
+        value="Nữ"
+        id="radioNu"
+      />
+      <label class="form-check-label" for="flexRadioDefault2">
+        Nữ
+      </label>
+    </div>
+  </div>
+  <div id="btnModalUpdate">
+    <button type="submit" class="btn btn btn-success">Update</button>
+    <button
+      type="button"
+      class="btn btn-secondary"
+      onclick="closeModalUpdate()"
+    >
+      Cancel
+    </button>
+  </div>
+  </form>
+  `;
+  if (studentUpdate.studentSex) {
+    document.getElementById("radioNam").checked = true;
+  } else {
+    document.getElementById("radioNu").checked = true;
+  }
 }
